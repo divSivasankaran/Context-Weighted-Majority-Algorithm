@@ -17,7 +17,7 @@ from scipy.spatial import distance
 import FisherFace as ff
 import random
 import os
-from sklearn.preprocessing import MinMaxScaler
+from scipy import spatial
 
 K=30
 R=90
@@ -76,25 +76,25 @@ def getfiles(Dir,mode,fold,context):
         ID,f,c,k,train,claim = line.split(",")
         
         if mode == "train":
-            if ID not in ["002","006","008","011","017","019","029"]:
-                continue
+#            if ID not in ["002","006","008","011","017","019","029"]:
+#                continue
             if c not in context or int(k) == fold or train!="1":
                 continue
             lst.append(line)
         else:
-            if claim not in ["002","006","008","011","017","019","029"]:
-                continue
+#            if claim not in ["002","006","008","011","017","019","029"]:
+#                continue
             if int(k)!=fold:
                 continue
             lst.append(line)
     file.close()
     return lst
 def main():
-    currDir = "C:/Users/div_1/Desktop/Scripts/LDA/Dataset"
+    currDir = "C:/Users/div_1/Desktop/Scripts/LDA/Dataset_57"
     #currDir = "C:\Users\e0013178\Google Drive\Study\Course Material\Multimedia Analysis\hw2"
     #Training classifiers
     #context pose
-    for k_fold in range(1,3):
+    for k_fold in range(3,4):
         print(k_fold)
         lst = getfiles(currDir,"train",k_fold,["0"])
         print("Files: ",len(lst))
@@ -122,8 +122,8 @@ def main():
             Py_lda = np.dot(Plda_w,f-Plda_m)
             Ey_lda = np.dot(Elda_w,f-Elda_m)
             claimID = l.split(",")[-1]
-            pDist = distance.euclidean(Plda_feature[int(claimID)], Py_lda)
-            eDist = distance.euclidean(Elda_feature[int(claimID)], Ey_lda)
+            pDist = spatial.distance.cosine(Plda_feature[int(claimID)], Py_lda)
+            eDist = spatial.distance.cosine(Elda_feature[int(claimID)], Ey_lda)
             fout.write((",").join([str(id_test[i]),claimID,str(context_test[i]),str(pDist),str(eDist)]))
             fout.write("\n")
         fout.close()
