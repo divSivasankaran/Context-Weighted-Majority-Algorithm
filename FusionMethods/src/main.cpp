@@ -4,12 +4,13 @@
 #include<string>
 #include <iterator>
 #include <sstream>
+#include<map>
 #include<SynDataMulti.h>
 #include <Test_SynData.h>
 
 using namespace alpehnull::core::algo;
 //std::string outDir = "C:\\Users\\div_1\\OneDrive\\Documents\\GitHub\\NUS_MThesis\\alpehnull\\output";
-std::string outDir = "C:\\Users\\e0013178\\Documents\\GitHub\\NUS_MThesis\\alpehnull\\output";
+std::string outDir = "C:\\Users\\div_1\\OneDrive\\Documents\\GitHub\\CWMA\\FusionMethods\\output";
 
 
 #define e_repeat 1
@@ -310,6 +311,58 @@ void e_Multi()
 	f.close();
 
 }
+// Tests against real data at the decision level
+void real_decisionlvl()
+{
+
+	std::string outfile = outDir + "\\pie_test.csv";
+	std::ofstream of;
+	int experts = 2;
+	int contexts = 0;
+	int rounds = 0;
+	std::map<int,int> contextmap;
+	std::vector<int> context_data;
+	std::vector<bool> actual_decisions;
+	std::vector<std::vector<bool>> expert_decisions;
+
+	//expert_decisions.resize(experts);
+	//context_data.resize(rounds);
+	//actual_decisions.resize(rounds);
+
+	/*for (int i = 0; i < experts; i++)
+	{
+	expert_decisions[i].resize(rounds);
+	}*/
+
+	//Read & transfer data
+	std::string infile = outDir + "\\..\\input\\Data_3.csv";
+	std::ifstream f;
+	f.open(infile);
+	std::string str;
+	int context_count = 0;
+	while (std::getline(f, str)) {
+		std::vector<int> res;
+		res = split(str, ',');
+		actual_decisions.push_back((bool)(res[8]));
+		std::vector<bool> e;
+		e.push_back((bool)(res[6]));
+		e.push_back((bool)(res[7]));
+		expert_decisions.push_back(e);
+
+		if (contextmap.find(res[5]) == contextmap.end())
+			contextmap[res[5]] = context_count++;
+
+		context_data.push_back(contextmap[res[5]]);
+	}
+	contexts = contextmap.size();
+	of.open(outfile);
+	WeightedMajorityAlgorithm mWMA(experts);
+	ContextWMA mCWMA(experts, contexts);
+	mWMA.train(expert_decisions, actual_decisions);//, of);
+	mCWMA.train(expert_decisions, actual_decisions, context_data);//, of);
+	mWMA.printStat(of);
+	mCWMA.printStat(of);
+}
 
 int main(int argc, char* argv[])
 {
@@ -322,11 +375,13 @@ int main(int argc, char* argv[])
 	//e_Contexts();
 	//e_Rounds();
 	//e_Bias_WithNoise();
-	convergenceTest();
+	//convergenceTest();
 
 	//e_Multi();
 
 	//real_data();
+	real_scorelvl();
+	real_decisionlvl();
 	getch();
 	return 0;
 }

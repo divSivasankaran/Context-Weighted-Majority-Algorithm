@@ -165,7 +165,7 @@ void WeightedMajorityAlgorithm::initialize()
 }
 bool WeightedMajorityAlgorithm::train(std::vector<std::vector<bool>>& expert_decisions,std::vector<bool>& actual_decisions)
 {
-	std::string outfile = outDir + "\\experiments\\test_rounds.csv";
+	std::string outfile = outDir + "\\test_rounds.csv";
 	std::ofstream f;
 	f.open(outfile);
 	mRounds = (int)(actual_decisions.size());
@@ -282,7 +282,7 @@ double ContextWMA::updateWeights(std::vector<bool>& expert_decisions, bool actua
 
 bool ContextWMA::train(std::vector<std::vector<bool>>& expert_decisions, std::vector<bool>& actual_decisions, std::vector<int>& contexts)
 {
-	std::string outfile = outDir + "\\experiments\\test_rounds.csv";
+	std::string outfile = outDir + "\\test_rounds.csv";
 	std::ofstream f;
 	f.open(outfile, std::ios::app);
 	if ((int)(contexts.size()) != (int)(actual_decisions.size()))
