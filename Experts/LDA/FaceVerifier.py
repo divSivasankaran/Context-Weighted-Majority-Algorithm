@@ -14,14 +14,17 @@ Created on Thu Apr  6 17:54:32 2017
 
 import numpy as np
 from scipy.spatial import distance
+from scipy import spatial
+
 import FisherFace as ff
+
+from shutil import copyfile
 import random
 import os
-from scipy import spatial
 
 K=30
 R=90
-alpha = 0.6
+alpha = 30
 np.set_printoptions(threshold=np.nan)
 
 def reduceDimension(faces_train,id_train,r):
@@ -74,14 +77,14 @@ def getfiles(data,mode,fold,context):
         ID,f,c,k,train,claim = line.split(",")
         
         if mode == "train":
-#            if ID not in ["002","006","008","011","017","019","029"]:
-#                continue
+            if ID not in ["002","006","008","011","017","019","029","035","036","038","042","044","047","048","050","052","055","057","184","186"]:
+                continue
             if c not in context or int(k) == fold or train!="1":
                 continue
             lst.append(line)
         else:
-#            if claim not in ["002","006","008","011","017","019","029"]:
-#                continue
+            if claim not in ["002","006","008","011","017","019","029","035","036","038","042","044","047","048","050","052","055","057","184","186"]:
+                continue
             if int(k)!=fold:
                 continue
             lst.append(line)
@@ -100,7 +103,7 @@ def main():
     for k_fold in range(1,4):
         print(k_fold)
         lst = getfiles(data,"train",k_fold,["0"])
-        print("Files: ",len(lst))
+        print("Training Pose Files: ",len(lst))
         faces_train,id_train,context_train = ff.read_faces(currDir,lst)
         Plda_w,Plda_m,Plda_feature = generateTemplate_LDA(faces_train,id_train)
         print("PLDA_f",Plda_feature[2].shape)
@@ -108,14 +111,14 @@ def main():
         
         #context expression
         lst = getfiles(data,"train",k_fold,["1"])
-        print("Files: ",len(lst))
+        print("Training Exp Files: ",len(lst))
         faces_train,id_train,context_train = ff.read_faces(currDir,lst)
         Elda_w,Elda_m,Elda_feature = generateTemplate_LDA(faces_train,id_train)
         print("LDA_f",Elda_feature[2].shape)
          
         #train on all data - trying to be best at everything!
         lst = getfiles(data,"train",k_fold,["0","1"])
-        print("Files: ",len(lst))
+        print("Training all: ",len(lst))
         faces_train,id_train,context_train = ff.read_faces(currDir,lst)
         Glda_w,Glda_m,Glda_feature = generateTemplate_LDA(faces_train,id_train)
         print("LDA_f",Elda_feature[2].shape)
@@ -138,9 +141,9 @@ def main():
             if str(c_exp)+str(c_pose) not in c.keys():
                 c[ str(c_exp)+str(c_pose)] = current_context_count
                 current_context_count += 1
-            pDist = spatial.distance.cosine(Plda_feature[int(claimID)], Py_lda)
-            eDist = spatial.distance.cosine(Elda_feature[int(claimID)], Ey_lda)
-            gDist = spatial.distance.cosine(Glda_feature[int(claimID)], Gy_lda)
+            pDist = int(spatial.distance.cosine(Plda_feature[int(claimID)], Py_lda)*50)
+            eDist = int(spatial.distance.cosine(Elda_feature[int(claimID)], Ey_lda)*50)
+            gDist = int(spatial.distance.cosine(Glda_feature[int(claimID)], Gy_lda)*50)
             p_d = 0
             e_d = 0
             g_d = 0
@@ -151,9 +154,11 @@ def main():
                 e_d = 1
             if gDist <= alpha:
                 g_d = 1
-            fout.write((",").join([str(id_test[i]),str(claimID),str(context_test[i]),str(pDist),str(eDist),str(gDist),str(c[ str(c_exp)+str(c_pose)]),str(p_d),str(e_d),str(g_d),str(true_d)]))
+            fout.write((",").join([str(c_id),str(claimID),str(context_test[i]),str(pDist),str(eDist),str(gDist),str(c[ str(c_exp)+str(c_pose)]),str(p_d),str(e_d),str(g_d),str(true_d)]))
             fout.write("\n")
         fout.close()
+        newPath = os.getcwd() + "/../../FusionMethods/input/" + filename
+        copyfile(filename,newPath)
 main()
 
 

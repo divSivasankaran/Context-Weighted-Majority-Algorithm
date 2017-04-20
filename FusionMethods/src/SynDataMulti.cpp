@@ -72,8 +72,8 @@ void Test_SynDataM::gen_test()
 	for (int i = 0; i < mRounds; i++)
 	{
 		std::vector<int> eD;
-		int decision;
-		decision = (rand() % 100) % 2/*mClasses;*/;
+		bool decision;
+		decision = (rand() % 100) % 2==0?0:1/*mClasses;*/;
 		actual_decisions.push_back(decision);
 		int context = distribution(generator) % mContexts;
 		contexts.push_back(context);

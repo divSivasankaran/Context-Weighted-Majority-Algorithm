@@ -7,7 +7,7 @@
 using namespace alpehnull::core::algo;
 #define EPSILON 0.5
 
-double WMA_Multi::updateRandomVersion(std::vector<int>& expert_decisions, int actual_decision)
+double WMA_Multi::updateRandomVersion(std::vector<int>& expert_decisions, bool actual_decision)
 {
 	std::random_device rd;
 	std::mt19937 e2(rd());
@@ -19,7 +19,7 @@ double WMA_Multi::updateRandomVersion(std::vector<int>& expert_decisions, int ac
 	{
 		if (expert_decisions[i])
 			l_current += mProbability[i];
-		if (expert_decisions[i] != actual_decision)//Expert was wrong. Update weights.
+		if ((expert_decisions[i]<mThreshold) == actual_decision)//Expert was wrong. Update weights.
 		{
 			mWeights[i] = mWeights[i] * exp(-EPSILON);
 			mExpertLoss[i]++;
@@ -35,7 +35,7 @@ double WMA_Multi::updateRandomVersion(std::vector<int>& expert_decisions, int ac
 		mProbability[i] = mWeights[i] / total_weight;
 	}
 	bool decision = dist(e2) <=l_current? true : false;
-	bool res = (int)(decision != actual_decision);
+	bool res = (decision != actual_decision)? 1:0;
 	mLoss += res;
 	if (!best_action)
 	{
@@ -60,7 +60,7 @@ double WMA_Multi::evaluateDistance(int curRound)
 	return distance;
 }
 
-double WMA_Multi::updateWeights(std::vector<int>& expert_decisions, int actual_decision)
+double WMA_Multi::updateWeights(std::vector<int>& expert_decisions, bool actual_decision)
 {
 	double l_current = 0;
 	double total_weight = 0.0;
@@ -71,21 +71,22 @@ double WMA_Multi::updateWeights(std::vector<int>& expert_decisions, int actual_d
 			l_current += mProbability[i]* expert_decisions[i];
 		//else
 		//	l_current -= mProbability[i];
-		if (expert_decisions[i] != actual_decision)
+		if ((expert_decisions[i]<mThreshold) == actual_decision)
 			best_action = true;
 	}
-	int decision = l_current >= 80 ? 1 : 0;
-	int res = (int)(decision != actual_decision);
+	bool decision = l_current <= mThreshold ? true : false;
+	int res = (decision != actual_decision)? 1 : 0;
 	mLoss += res;
 	//if (decision != actual_decision)
 	{
 		for (int i = 0; i < mExperts; i++)
 		{
 			//if (expert_decisions[i] != actual_decision)//Expert was wrong. Update weights.
-			if ((expert_decisions[i]<80 && actual_decision) || (expert_decisions[i]>20 && !actual_decision))
+			if (((expert_decisions[i]<mThreshold) && !actual_decision) || ((expert_decisions[i]>mThreshold) && actual_decision))
 
 			{
-				mWeights[i] = mWeights[i] * (/*exp*/(-EPSILON * std::abs(1 - expert_decisions[i] / 100)));
+				auto loss = (1 - double(expert_decisions[i] / 100.0));
+				mWeights[i] = mWeights[i] * (exp(-EPSILON * std::abs(int(actual_decision) - loss)));
 				mExpertLoss[i] += 1;
 			}
 			//else
@@ -159,9 +160,9 @@ void WMA_Multi::initialize()
 	mBestActionLoss = 0.0;
 	mLoss = 0.0;
 }
-bool WMA_Multi::train(std::vector<std::vector<int>>& expert_decisions,std::vector<int>& actual_decisions)
+bool WMA_Multi::train(std::vector<std::vector<int>>& expert_decisions,std::vector<bool>& actual_decisions)
 {
-	std::string outfile = outDir + "\\experiments\\test_multi.csv";
+	std::string outfile = outDir + "\\stat_score.csv";
 	std::ofstream f;
 	f.open(outfile);
 	mRounds = (int)(actual_decisions.size());
@@ -184,7 +185,7 @@ bool WMA_Multi::predict(std::vector<int>& expert_decisions)
 {
 	if ((int)(expert_decisions.size()) != mExperts)
 		return false;
-	int final_result = 0;
+	double final_result = 0;
 	for (int i = 0; i < mExperts; i++)
 	{
 		if (expert_decisions[i])
@@ -200,7 +201,7 @@ bool WMA_Multi::predict(std::vector<int>& expert_decisions)
 	return result;
 }
 
-bool WMA_Multi::converge(std::vector<std::vector<int>>& expert_decisions, std::vector<int>& actual_decisions,std::ofstream &file)
+bool WMA_Multi::converge(std::vector<std::vector<int>>& expert_decisions, std::vector<bool>& actual_decisions,std::ofstream &file)
 {
 	mRounds = (int)(actual_decisions.size());
 	initialize();
@@ -269,16 +270,16 @@ void ContextWMA_Multi::printStat(std::ofstream &f)
 	}
 }
 
-double ContextWMA_Multi::updateWeights(std::vector<int>& expert_decisions, int actual_decision,int context)
+double ContextWMA_Multi::updateWeights(std::vector<int>& expert_decisions, bool actual_decision,int context)
 {
 	mWMA[context].mRounds++;
 	return mWMA[context].updateWeights(expert_decisions, actual_decision);
 	//return mWMA[context].updateRandomVersion(expert_decisions, actual_decision);
 }
 
-bool ContextWMA_Multi::train(std::vector<std::vector<int>>& expert_decisions, std::vector<int>& actual_decisions, std::vector<int>& contexts)
+bool ContextWMA_Multi::train(std::vector<std::vector<int>>& expert_decisions, std::vector<bool>& actual_decisions, std::vector<int>& contexts)
 {
-	std::string outfile = outDir + "\\experiments\\test_multi.csv";
+	std::string outfile = outDir + "\\stat_score.csv";
 	std::ofstream f;
 	f.open(outfile, std::ios::app);
 	if ((int)(contexts.size()) != (int)(actual_decisions.size()))
@@ -313,7 +314,7 @@ double ContextWMA_Multi::getBestLoss()
 	return mTotalBestLoss;
 }
 
-bool ContextWMA_Multi::converge(std::vector<std::vector<int>>& expert_decisions, std::vector<int>& actual_decisions, std::vector<int>& contexts,std::ofstream &file)
+bool ContextWMA_Multi::converge(std::vector<std::vector<int>>& expert_decisions, std::vector<bool>& actual_decisions, std::vector<int>& contexts,std::ofstream &file)
 {
 	if ((int)(contexts.size()) != (int)(actual_decisions.size()))
 		return false;

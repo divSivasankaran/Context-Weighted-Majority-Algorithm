@@ -222,9 +222,9 @@ void split(const std::string &s, char delim, Out result) {
 	}
 }
 
-std::vector<double> split(const std::string &s, char delim) {
+std::vector<int> split(const std::string &s, char delim) {
 	std::vector<std::string> elems;
-	std::vector<double> res;
+	std::vector<int> res;
 	split(s, delim, std::back_inserter(elems));
 	for (int i = 0; i < elems.size(); i++)
 	{
@@ -314,9 +314,9 @@ void e_Multi()
 // Tests against real data at the decision level
 void real_decisionlvl()
 {
-	std::string outfile = outDir + "\\pie_test.csv";
+	std::string outfile = outDir + "\\pie_test_decision.csv";
 	std::ofstream of;
-	int experts = 2;
+	int experts = 3;
 	int contexts = 0;
 	int rounds = 0;
 	std::map<int,int> contextmap;
@@ -334,24 +334,25 @@ void real_decisionlvl()
 	}*/
 
 	//Read & transfer data
-	std::string infile = outDir + "\\..\\input\\Data_3.csv";
+	std::string infile = outDir + "\\..\\input\\Data_1.csv";
 	std::ifstream f;
 	f.open(infile);
 	std::string str;
 	int context_count = 0;
 	while (std::getline(f, str)) {
-		std::vector<double> res;
+		std::vector<int> res;
 		res = split(str, ',');
-		actual_decisions.push_back((bool)(res[8]));
+		actual_decisions.push_back((bool)(res[10]));
 		std::vector<bool> e;
-		e.push_back((bool)(res[6]));
 		e.push_back((bool)(res[7]));
+		e.push_back((bool)(res[8]));
+		e.push_back((bool)(res[9]));
 		expert_decisions.push_back(e);
 
-		if (contextmap.find(res[5]) == contextmap.end())
-			contextmap[res[5]] = context_count++;
+		if (contextmap.find(res[6]) == contextmap.end())
+			contextmap[res[6]] = context_count++;
 
-		context_data.push_back(contextmap[res[5]]);
+		context_data.push_back(contextmap[res[6]]);
 	}
 	contexts = contextmap.size();
 	of.open(outfile);
@@ -363,29 +364,19 @@ void real_decisionlvl()
 	mCWMA.printStat(of);
 }
 
-void real_scorelvl(double threshold)
+void real_scorelvl(int threshold)
 {
-	std::string outfile = outDir + "\\pie_test.csv";
+	std::string outfile = outDir + "\\pie_test_score.csv";
 	std::ofstream of;
-	int experts = 2;
+	int experts = 3;
 	int contexts = 0;
-	int rounds = 0;
 	std::map<int, int> contextmap;
 	std::vector<int> context_data;
 	std::vector<bool> actual_decisions;
-	std::vector<std::vector<bool>> expert_decisions;
-
-	//expert_decisions.resize(experts);
-	//context_data.resize(rounds);
-	//actual_decisions.resize(rounds);
-
-	/*for (int i = 0; i < experts; i++)
-	{
-	expert_decisions[i].resize(rounds);
-	}*/
+	std::vector<std::vector<int>> expert_decisions;
 
 	//Read & transfer data
-	std::string infile = outDir + "\\..\\input\\Data_3.csv";
+	std::string infile = outDir + "\\..\\input\\Data_1.csv";
 	std::ifstream f;
 	f.open(infile);
 	std::string str;
@@ -393,21 +384,26 @@ void real_scorelvl(double threshold)
 	while (std::getline(f, str)) {
 		std::vector<int> res;
 		res = split(str, ',');
-		actual_decisions.push_back((bool)(res[8]));
-		std::vector<bool> e;
-		e.push_back((bool)(res[6]));
-		e.push_back((bool)(res[7]));
+		actual_decisions.push_back(bool(res[10]));
+		std::vector<int> e;
+		e.push_back(res[3]);
+		e.push_back(res[4]);
+		e.push_back(res[5]);
 		expert_decisions.push_back(e);
 
-		if (contextmap.find(res[5]) == contextmap.end())
-			contextmap[res[5]] = context_count++;
+		if (contextmap.find(res[6]) == contextmap.end())
+			contextmap[res[6]] = context_count++;
 
-		context_data.push_back(contextmap[res[5]]);
+		context_data.push_back(contextmap[res[6]]);
 	}
 	contexts = contextmap.size();
 	of.open(outfile);
-	WeightedMajorityAlgorithm mWMA(experts);
-	ContextWMA mCWMA(experts, contexts);
+	WMA_Multi mWMA(experts);
+	ContextWMA_Multi mCWMA(experts, contexts);
+	mWMA.setThreshold(threshold);
+	mCWMA.setThreshold(threshold);
+	mWMA.setMode(MODE::SCORE);
+	mCWMA.setMode(MODE::SCORE);
 	mWMA.train(expert_decisions, actual_decisions);//, of);
 	mCWMA.train(expert_decisions, actual_decisions, context_data);//, of);
 	mWMA.printStat(of);
@@ -430,8 +426,8 @@ int main(int argc, char* argv[])
 	//e_Multi();
 
 	//real_data();
-	real_scorelvl(0.6);
-	//real_decisionlvl();
+	real_scorelvl(30);
+	real_decisionlvl();
 	getch();
 	return 0;
 }
