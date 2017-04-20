@@ -222,9 +222,9 @@ void split(const std::string &s, char delim, Out result) {
 	}
 }
 
-std::vector<int> split(const std::string &s, char delim) {
+std::vector<double> split(const std::string &s, char delim) {
 	std::vector<std::string> elems;
-	std::vector<int> res;
+	std::vector<double> res;
 	split(s, delim, std::back_inserter(elems));
 	for (int i = 0; i < elems.size(); i++)
 	{
@@ -314,13 +314,63 @@ void e_Multi()
 // Tests against real data at the decision level
 void real_decisionlvl()
 {
-
 	std::string outfile = outDir + "\\pie_test.csv";
 	std::ofstream of;
 	int experts = 2;
 	int contexts = 0;
 	int rounds = 0;
 	std::map<int,int> contextmap;
+	std::vector<int> context_data;
+	std::vector<bool> actual_decisions;
+	std::vector<std::vector<bool>> expert_decisions;
+
+	//expert_decisions.resize(experts);
+	//context_data.resize(rounds);
+	//actual_decisions.resize(rounds);
+
+	/*for (int i = 0; i < experts; i++)
+	{
+	expert_decisions[i].resize(rounds);
+	}*/
+
+	//Read & transfer data
+	std::string infile = outDir + "\\..\\input\\Data_3.csv";
+	std::ifstream f;
+	f.open(infile);
+	std::string str;
+	int context_count = 0;
+	while (std::getline(f, str)) {
+		std::vector<double> res;
+		res = split(str, ',');
+		actual_decisions.push_back((bool)(res[8]));
+		std::vector<bool> e;
+		e.push_back((bool)(res[6]));
+		e.push_back((bool)(res[7]));
+		expert_decisions.push_back(e);
+
+		if (contextmap.find(res[5]) == contextmap.end())
+			contextmap[res[5]] = context_count++;
+
+		context_data.push_back(contextmap[res[5]]);
+	}
+	contexts = contextmap.size();
+	of.open(outfile);
+	WeightedMajorityAlgorithm mWMA(experts);
+	ContextWMA mCWMA(experts, contexts);
+	mWMA.train(expert_decisions, actual_decisions);//, of);
+	mCWMA.train(expert_decisions, actual_decisions, context_data);//, of);
+	mWMA.printStat(of);
+	mCWMA.printStat(of);
+}
+
+void real_scorelvl(double threshold)
+{
+	std::string outfile = outDir + "\\pie_test.csv";
+	std::ofstream of;
+	int experts = 2;
+	int contexts = 0;
+	int rounds = 0;
+	std::map<int, int> contextmap;
 	std::vector<int> context_data;
 	std::vector<bool> actual_decisions;
 	std::vector<std::vector<bool>> expert_decisions;
@@ -380,8 +430,8 @@ int main(int argc, char* argv[])
 	//e_Multi();
 
 	//real_data();
-	real_scorelvl();
-	real_decisionlvl();
+	real_scorelvl(0.6);
+	//real_decisionlvl();
 	getch();
 	return 0;
 }

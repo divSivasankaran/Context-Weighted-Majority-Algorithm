@@ -87,7 +87,7 @@ def getfiles(data,mode,fold,context):
             lst.append(line)
     return lst
 def main():
-    currDir = "C:/Users/div_1/Desktop/Scripts/LDA/Dataset_57"
+    currDir = os.getcwd() + "/../../Datasets/Dataset_57"
     #currDir = "C:\Users\e0013178\Google Drive\Study\Course Material\Multimedia Analysis\hw2"
     #Training classifiers
     #context pose

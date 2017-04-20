@@ -1,3 +1,8 @@
 FusionMethods/input
 FusionMethods/.vs
 FusionMethods/output
+Datasets/Dataset_57
+Experts/CreateDataset/FileList.csv
+Experts/LDA/KFold_Split.csv
+Experts/CreateDataset/KFold_Split.csv
+Experts/LDA/__pycache__/FisherFace.cpython-36.pyc
