@@ -343,17 +343,17 @@ void real_decisionlvl()
 	while (std::getline(f, str)) {
 		std::vector<int> res;
 		res = split(str, ',');
-		actual_decisions.push_back((bool)(res[10]));
+		actual_decisions.push_back((bool)(res[9]));
 		std::vector<bool> e;
+		e.push_back((bool)(res[6]));
 		e.push_back((bool)(res[7]));
 		e.push_back((bool)(res[8]));
-		e.push_back((bool)(res[9]));
 		expert_decisions.push_back(e);
 
-		if (contextmap.find(res[6]) == contextmap.end())
-			contextmap[res[6]] = context_count++;
+		if (contextmap.find(res[2]) == contextmap.end())
+			contextmap[res[2]] = context_count++;
 
-		context_data.push_back(contextmap[res[6]]);
+		context_data.push_back(contextmap[res[2]]);
 	}
 	contexts = contextmap.size();
 	of.open(outfile);
@@ -385,17 +385,17 @@ void real_scorelvl(int threshold)
 	while (std::getline(f, str)) {
 		std::vector<int> res;
 		res = split(str, ',');
-		actual_decisions.push_back(bool(res[10]));
+		actual_decisions.push_back(bool(res[9]));
 		std::vector<int> e;
 		e.push_back(res[3]);
 		e.push_back(res[4]);
 		e.push_back(res[5]);
 		expert_decisions.push_back(e);
 
-		if (contextmap.find(res[6]) == contextmap.end())
-			contextmap[res[6]] = context_count++;
+		if (contextmap.find(res[2]) == contextmap.end())
+			contextmap[res[2]] = context_count++;
 
-		context_data.push_back(contextmap[res[6]]);
+		context_data.push_back(contextmap[res[2]]);
 	}
 	contexts = contextmap.size();
 	of.open(outfile);

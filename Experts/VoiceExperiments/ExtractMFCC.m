@@ -5,6 +5,6 @@ function [ MFCCFeat ] = ExtractMFCC(audiopath)
 %We use 16k
 [audio,FS] = audioread(audiopath);
 MFCCFeat = melcepst(audio, FS);
-MFCCFeat=MFCCFeat(:);
+MFCCFeat=mean(MFCCFeat);
 end
 

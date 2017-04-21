@@ -145,14 +145,14 @@ def extractVoiceFeatures(directory,lst):
         mfcc_arr = mfcc_arr.astype(np.float32)
         # turn an array into vector
         mfcc_vec = np.reshape(mfcc_arr, -1)
-        A.append(mfcc_vec[:4400])
+        A.append(mfcc_vec)
         name = line.split(",")[0]
         c = line.split(",")[3]
         Label.append(int(name))
         Context.append(int(c))
 
     voices = np.array(A)
-   # voices = np.transpose(voices)
+    voices = np.transpose(voices)
     idLabel = np.array(Label)
     context = np.array(Context)
     

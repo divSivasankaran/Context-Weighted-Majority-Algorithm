@@ -77,7 +77,7 @@ def getfiles(data,mode,fold,context):
         ID,f,c,k,train,claim = line.split(",")
         
         if mode == "train":
-            if ID not in ["002","006","008","011","017","019","029","035","036","038","042","044","047","048","050","052","055","057","184","186"]:
+            if ID not in ["002","006","008"]:#,"011","017","019","029","035","036","038","042","044","047","048","050","052","055","057","184","186"]:
                 continue
             if c not in context or int(k) == fold or train!="1":
                 continue
@@ -106,7 +106,7 @@ def main():
         print("Training Pose Files: ",len(lst))
         faces_train,id_train,context_train = ff.read_faces(currDir,lst)
         Plda_w,Plda_m,Plda_feature = generateTemplate_LDA(faces_train,id_train)
-        print("PLDA_f",Plda_feature[2].shape)
+        print("PLDA_f",Plda_w.shape)
         print("mean",Plda_m.shape)
         
         #context expression
@@ -114,7 +114,7 @@ def main():
         print("Training Exp Files: ",len(lst))
         faces_train,id_train,context_train = ff.read_faces(currDir,lst)
         Elda_w,Elda_m,Elda_feature = generateTemplate_LDA(faces_train,id_train)
-        print("LDA_f",Elda_feature[2].shape)
+        print("LDA_f",Elda_feature.shape)
          
         #train on all data - trying to be best at everything!
         lst = getfiles(data,"train",k_fold,["0","1"])
