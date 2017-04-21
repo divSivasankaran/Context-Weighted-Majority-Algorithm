@@ -25,7 +25,7 @@ namespace alpehnull {
 				virtual double getBestExpertLoss();
 				virtual void printStat();
 				virtual void printStat(std::ofstream &file);
-				virtual double updateWeights(std::vector<bool>& expert_decisions,bool actual_decision);
+				virtual bool updateWeights(std::vector<bool>& expert_decisions,bool actual_decision);
 				virtual double updateRandomVersion(std::vector<bool>& expert_decisions, bool actual_decision);
 				virtual bool train(std::vector<std::vector<bool>>& expert_decisions, std::vector<bool>& actual_decisions);
 				virtual bool predict(std::vector<bool>& expert_decisions);
@@ -65,7 +65,7 @@ namespace alpehnull {
 				virtual double getLoss() { return mLoss; }
 				virtual double getBestLoss();
 				virtual void initialize();
-				virtual double updateWeights(std::vector<bool>& expert_decisions, bool actual_decision,int context);
+				virtual bool updateWeights(std::vector<bool>& expert_decisions, bool actual_decision,int context);
 				virtual bool train(std::vector<std::vector<bool>>& expert_decisions, std::vector<bool>& actual_decisions, std::vector<int>& contexts);
 				virtual bool predict(std::vector<bool>& expert_decisions, int context);
 				virtual void printStat();

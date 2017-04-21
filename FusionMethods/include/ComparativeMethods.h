@@ -1,37 +1,29 @@
 #pragma once
 #include<vector>
+#include<WMA_Multi.h>
+#include<WeightedMajorityAlgorithm.h>
 
 extern std::string outDir;
 
 namespace alpehnull {
 	namespace core {
 		namespace algo {
-
+			enum CMODE {sum, max,product, wma, cwma,wms,cwms};
 			class C_Methods {
+			public:
 				C_Methods() {
 				}
-				C_Methods(int experts) {
-					setExperts(experts);
-				}
-				virtual void setExperts(int experts)
-				{
-					mExperts = experts;
-				}
-				virtual void initialize();
-				virtual double getLoss() { return mLoss; }
-				virtual void printStat();
-				virtual void printStat(std::ofstream &file);
-				virtual bool train(std::vector<std::vector<bool>>& expert_decisions, std::vector<bool>& actual_decisions);
-				virtual bool predict(std::vector<bool>& expert_decisions);
-				int mRounds;
-			protected:
-				int mExperts;
-				std::vector<double> mProbability;
-				std::vector<double> mWeights;
-				double mLoss;
+				bool evaluate(CMODE mode,std::vector<std::vector<int>>& expert_decisions, std::vector<bool>& actual_decisions, std::vector<int>& contexts);
+				double evaluate_sum(std::vector<int>& scores);
+				double evaluate_max(std::vector<int>& scores);
+				double evaluate_product(std::vector<int>& scores);
+				int mContext;
+			private:
+				WeightedMajorityAlgorithm mWMA;
+				ContextWMA mCWMA;
+				WMA_Multi mWS;
+				ContextWMA_Multi mCWS;
 			};
-
-
 		}
 	}
 }

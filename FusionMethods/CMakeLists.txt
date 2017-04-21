@@ -10,7 +10,7 @@ file(GLOB SOURCES
    include/*.h
    src/*.cpp
 ) 
-  
+   
  MESSAGE("Process file: ${SOURCES}")
 add_executable(CWMA ${SOURCES})
 

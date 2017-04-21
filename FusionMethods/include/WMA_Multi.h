@@ -11,10 +11,12 @@ namespace alpehnull {
 			class WMA_Multi {
 			public:
 				WMA_Multi() {
+					mRounds = 0;
 				}
 				WMA_Multi(int experts) {
 					setExperts(experts);
 					setMode(SCORE);
+					mRounds = 0;
 				}
 				virtual void setExperts(int experts)
 				{
@@ -30,7 +32,7 @@ namespace alpehnull {
 				virtual double getBestExpertLoss();
 				virtual void printStat();
 				virtual void printStat(std::ofstream &file);
-				virtual double updateWeights(std::vector<int>& expert_decisions, bool actual_decision);
+				virtual bool updateWeights(std::vector<int>& expert_decisions, bool actual_decision);
 				virtual double updateRandomVersion(std::vector<int>& expert_decisions, bool actual_decision);
 				virtual bool train(std::vector<std::vector<int>>& expert_decisions, std::vector<bool>& actual_decisions);
 				virtual bool predict(std::vector<int>& expert_decisions);
@@ -56,9 +58,11 @@ namespace alpehnull {
 			public:
 				ContextWMA_Multi()
 				{
+					mRounds = 0;
 				}
 				ContextWMA_Multi(int experts,int contexts){
 					setExperts(experts, contexts);
+					mRounds = 0;
 				}
 				virtual void setExperts(int experts, int contexts) {
 					mExperts = experts;
@@ -91,7 +95,7 @@ namespace alpehnull {
 				virtual double getLoss() { return mLoss; }
 				virtual double getBestLoss();
 				virtual void initialize();
-				virtual double updateWeights(std::vector<int>& expert_decisions, bool actual_decision,int context);
+				virtual bool updateWeights(std::vector<int>& expert_decisions, bool actual_decision,int context);
 				virtual bool train(std::vector<std::vector<int>>& expert_decisions, std::vector<bool>& actual_decisions, std::vector<int>& contexts);
 				virtual bool predict(std::vector<int>& expert_decisions, int context);
 				virtual void printStat();

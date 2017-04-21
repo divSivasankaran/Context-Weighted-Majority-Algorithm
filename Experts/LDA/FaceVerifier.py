@@ -123,7 +123,6 @@ def main():
         Glda_w,Glda_m,Glda_feature = generateTemplate_LDA(faces_train,id_train)
         print("LDA_f",Elda_feature[2].shape)
         
-        
         lst = getfiles(data,"test",k_fold,["0","1"])
         print("testing list",len(lst))
         faces_test,id_test,context_test = ff.read_faces(currDir,lst)
