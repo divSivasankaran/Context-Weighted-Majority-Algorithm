@@ -2,10 +2,10 @@ FusionMethods/input
 FusionMethods/.vs
 FusionMethods/output
 Datasets/Dataset_57
-Experts/LDA/Data_1.csv
-Experts/LDA/Data_2.csv
-Experts/CreateDataset/KFold_Split.csv
 Experts/CreateDataset/FileList.csv
-Experts/LDA/Data_3.csv
-Experts/LDA/__pycache__/FisherFace.cpython-36.pyc
 Experts/LDA/KFold_Split.csv
+Experts/CreateDataset/KFold_Split.csv
+Experts/LDA/__pycache__/FisherFace.cpython-36.pyc
+Experts/LDA/Data_1.csv
+Experts/LDA/Data_3.csv
+Experts/LDA/Data_2.csv
