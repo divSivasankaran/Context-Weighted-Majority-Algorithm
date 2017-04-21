@@ -22,8 +22,10 @@ public:
 		mExperts = experts;
 		mRounds = rounds;
 		mContexts = context;
-		mWMA.setExperts(experts,classes);
-		mCWMA.setExperts(experts, context,classes);
+		mWMA.setExperts(experts);
+		mWMA.setClasses(classes);
+		mCWMA.setExperts(experts, context);
+		mCWMA.setClasses(classes);
 		bias = mContexts; //fully biased
 		bias_percentage = 100;
 		mType = Data_Dist::Biased;
@@ -47,7 +49,7 @@ protected:
 	int mExperts, mRounds, mContexts;
 	double mLoss_total, mLoss_Avg,mLossBest;
 	std::vector<std::vector<int>> expert_decisions;
-	std::vector<int> actual_decisions;
+	std::vector<bool> actual_decisions;
 	std::vector<int> contexts;
 	std::vector<std::vector<int>> bias_factor;
 	int mClasses;
