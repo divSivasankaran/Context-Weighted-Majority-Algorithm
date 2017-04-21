@@ -65,7 +65,7 @@ double WeightedMajorityAlgorithm::evaluateDistance(int curRound)
 	return distance;
 }
 
-double WeightedMajorityAlgorithm::updateWeights(std::vector<bool>& expert_decisions, bool actual_decision)
+bool WeightedMajorityAlgorithm::updateWeights(std::vector<bool>& expert_decisions, bool actual_decision)
 {
 	double l_current = 0;
 	double total_weight = 0.0;
@@ -89,7 +89,7 @@ double WeightedMajorityAlgorithm::updateWeights(std::vector<bool>& expert_decisi
 		{
 			if (expert_decisions[i] != actual_decision)//Expert was wrong. Update weights.
 			{
-				mWeights[i] = mWeights[i] * exp(-EPSILON);
+				mWeights[i] = mWeights[i] * exp(- BETA);
 				mExpertLoss[i]++;
 			}
 			else
@@ -107,7 +107,7 @@ double WeightedMajorityAlgorithm::updateWeights(std::vector<bool>& expert_decisi
 	{
 		mBestActionLoss += 1;
 	}
-	return res;
+	return decision;
 }
 
 double WeightedMajorityAlgorithm::getBestExpertLoss()
@@ -154,6 +154,9 @@ void WeightedMajorityAlgorithm::printStat(std::ofstream &file)
 
 void WeightedMajorityAlgorithm::initialize()
 {
+	mProbability.clear();
+	mWeights.clear();
+	mExpertLoss.clear();
 	for (int i = 0; i < mExperts; i++)
 	{
 		mProbability.push_back(double(1.0 / (double)mExperts));
@@ -273,7 +276,7 @@ void ContextWMA::printStat(std::ofstream &f)
 	}
 }
 
-double ContextWMA::updateWeights(std::vector<bool>& expert_decisions, bool actual_decision,int context)
+bool ContextWMA::updateWeights(std::vector<bool>& expert_decisions, bool actual_decision,int context)
 {
 	mWMA[context].mRounds++;
 	return mWMA[context].updateWeights(expert_decisions, actual_decision);
@@ -294,7 +297,9 @@ bool ContextWMA::train(std::vector<std::vector<bool>>& expert_decisions, std::ve
 	{
 		if ((int)(expert_decisions[i].size()) != mExperts)
 			return false;
-		mLoss += updateWeights(expert_decisions[i], actual_decisions[i],contexts[i]);
+		auto d = updateWeights(expert_decisions[i], actual_decisions[i],contexts[i]);
+		if (d != actual_decisions[i])
+			mLoss++;
 		f << i << "," << mLoss / (i+1) <<","<< mLoss  << "," << getBestLoss() << std::endl;
 	}
 	f.close();

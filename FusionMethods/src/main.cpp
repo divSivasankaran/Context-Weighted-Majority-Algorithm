@@ -7,10 +7,11 @@
 #include<map>
 #include<SynDataMulti.h>
 #include <Test_SynData.h>
+#include<ComparativeMethods.h>
 
 using namespace alpehnull::core::algo;
-//std::string outDir = "C:\\Users\\div_1\\OneDrive\\Documents\\GitHub\\NUS_MThesis\\alpehnull\\output";
-std::string outDir = "C:\\Users\\div_1\\OneDrive\\Documents\\GitHub\\CWMA\\FusionMethods\\output";
+std::string outDir = "C:\\Users\\e0013178\\Documents\\GitHub\\CWMA\\FusionMethods\\output";
+//std::string outDir = "C:\\Users\\div_1\\OneDrive\\Documents\\GitHub\\CWMA\\FusionMethods\\output";
 
 
 #define e_repeat 1
@@ -408,7 +409,15 @@ void real_scorelvl(int threshold)
 	mCWMA.train(expert_decisions, actual_decisions, context_data);//, of);
 	mWMA.printStat(of);
 	mCWMA.printStat(of);
+	C_Methods methods;
+	methods.mContext = contexts;
+	methods.evaluate(CMODE::sum, expert_decisions, actual_decisions, context_data);
+	//methods.evaluate(CMODE::product, expert_decisions, actual_decisions, context_data);
+	//methods.evaluate(CMODE::max, expert_decisions, actual_decisions, context_data);
+	//methods.evaluate(CMODE::wma, expert_decisions, actual_decisions, context_data);
+	//methods.evaluate(CMODE::cwma, expert_decisions, actual_decisions, context_data);
 }
+
 
 int main(int argc, char* argv[])
 {
@@ -428,6 +437,6 @@ int main(int argc, char* argv[])
 	//real_data();
 	real_scorelvl(30);
 	real_decisionlvl();
-	getch();
+	//getch();
 	return 0;
 }

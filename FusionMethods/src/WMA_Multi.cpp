@@ -4,6 +4,7 @@
 #include<fstream>
 #include<time.h>
 #include<random>
+#include<string>
 using namespace alpehnull::core::algo;
 #define EPSILON 0.5
 
@@ -60,7 +61,7 @@ double WMA_Multi::evaluateDistance(int curRound)
 	return distance;
 }
 
-double WMA_Multi::updateWeights(std::vector<int>& expert_decisions, bool actual_decision)
+bool WMA_Multi::updateWeights(std::vector<int>& expert_decisions, bool actual_decision)
 {
 	double l_current = 0;
 	double total_weight = 0.0;
@@ -104,7 +105,7 @@ double WMA_Multi::updateWeights(std::vector<int>& expert_decisions, bool actual_
 	{
 		mBestActionLoss += 1;
 	}
-	return res;
+	return decision;
 }
 
 double WMA_Multi::getBestExpertLoss()
@@ -151,6 +152,9 @@ void WMA_Multi::printStat(std::ofstream &file)
 
 void WMA_Multi::initialize()
 {
+	mProbability.clear();
+	mWeights.clear();
+	mExpertLoss.clear();
 	for (int i = 0; i < mExperts; i++)
 	{
 		mProbability.push_back(double(1.0 / (double)mExperts));
@@ -162,7 +166,7 @@ void WMA_Multi::initialize()
 }
 bool WMA_Multi::train(std::vector<std::vector<int>>& expert_decisions,std::vector<bool>& actual_decisions)
 {
-	std::string outfile = outDir + "\\stat_score.csv";
+	std::string outfile = outDir + "\\stat_score"+ std::to_string(mThreshold) + ".csv";
 	std::ofstream f;
 	f.open(outfile);
 	mRounds = (int)(actual_decisions.size());
@@ -270,7 +274,7 @@ void ContextWMA_Multi::printStat(std::ofstream &f)
 	}
 }
 
-double ContextWMA_Multi::updateWeights(std::vector<int>& expert_decisions, bool actual_decision,int context)
+bool ContextWMA_Multi::updateWeights(std::vector<int>& expert_decisions, bool actual_decision,int context)
 {
 	mWMA[context].mRounds++;
 	return mWMA[context].updateWeights(expert_decisions, actual_decision);
@@ -279,25 +283,26 @@ double ContextWMA_Multi::updateWeights(std::vector<int>& expert_decisions, bool 
 
 bool ContextWMA_Multi::train(std::vector<std::vector<int>>& expert_decisions, std::vector<bool>& actual_decisions, std::vector<int>& contexts)
 {
-	std::string outfile = outDir + "\\stat_score.csv";
-	std::ofstream f;
-	f.open(outfile, std::ios::app);
-	if ((int)(contexts.size()) != (int)(actual_decisions.size()))
-		return false;
-	mRounds = (int)(contexts.size());
-	initialize();
-	f << "CWMA, avgLoss, currLoss,BestContextLoss" << std::endl;
-	for (int i = 0; i < mRounds; i++)
-	{
-		if ((int)(expert_decisions[i].size()) != mExperts)
+		std::string outfile = outDir + "\\stat_score" + std::to_string(mThreshold) + ".csv";
+		std::ofstream f;
+		f.open(outfile, std::ios::app);
+		if ((int)(contexts.size()) != (int)(actual_decisions.size()))
 			return false;
-		mLoss += updateWeights(expert_decisions[i], actual_decisions[i],contexts[i]);
-		f << i << "," << mLoss / (i + 1) << "," << mLoss << "," << getBestLoss() << std::endl;
+		mRounds = (int)(contexts.size());
+		initialize();
+		f << "CWMA, avgLoss, currLoss,BestContextLoss" << std::endl;
+		for (int i = 0; i < mRounds; i++)
+		{
+			if ((int)(expert_decisions[i].size()) != mExperts)
+				return false;
+			auto decision = updateWeights(expert_decisions[i], actual_decisions[i], contexts[i]);
+			if (decision != actual_decisions[i])
+				mLoss += 1;
+			f << i << "," << mLoss / (i + 1) << "," << mLoss << "," << getBestLoss() << std::endl;
 
-	}
-	//printStat(f);
-	f.close();
-	return true;
+		}
+		f.close();
+		return true;
 }
 
 bool ContextWMA_Multi::predict(std::vector<int>& expert_decisions,int context)
