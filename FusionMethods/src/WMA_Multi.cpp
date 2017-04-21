@@ -176,7 +176,7 @@ bool WMA_Multi::train(std::vector<std::vector<int>>& expert_decisions,std::vecto
 		//updateRandomVersion(expert_decisions[i], actual_decisions[i]);
 		f << i << "," << mLoss / (i + 1) << "," << mLoss << "," << getBestActionLoss() << "," << getBestExpertLoss() << std::endl;
 	}
-	printStat(f);
+	//printStat(f);
 	f.close();
 	return true;
 }
@@ -295,8 +295,7 @@ bool ContextWMA_Multi::train(std::vector<std::vector<int>>& expert_decisions, st
 		f << i << "," << mLoss / (i + 1) << "," << mLoss << "," << getBestLoss() << std::endl;
 
 	}
-	printStat(f);
-
+	//printStat(f);
 	f.close();
 	return true;
 }

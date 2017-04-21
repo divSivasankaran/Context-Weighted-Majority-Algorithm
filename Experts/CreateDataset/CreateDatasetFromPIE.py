@@ -11,13 +11,13 @@ import random
 from shutil import copyfile
 
 BaseDir = ""
-#PIE_Exp_Dir = "C:/Users/e0013178/Documents/GitHub/NUS_MThesis/Datasets/Face/multipie_linearCrop/All_exp_Frontal_pose_All_illum"
-#PIE_Pose_Dir = "C:/Users/e0013178/Documents/GitHub/NUS_MThesis/Datasets/Face/multipie_linearCrop/Neutral_exp_All_poses_All_illum"
+PIE_Exp_Dir = "C:/Users/e0013178/Documents/GitHub/NUS_MThesis/Datasets/Face/multipie_linearCrop/All_exp_Frontal_pose_All_illum"
+PIE_Pose_Dir = "C:/Users/e0013178/Documents/GitHub/NUS_MThesis/Datasets/Face/multipie_linearCrop/Neutral_exp_All_poses_All_illum"
 
-PIE_Exp_Dir = "C:/Users/div_1/OneDrive/Documents/GitHub/NUS_MThesis/Datasets/multipie_linearCrop/All_exp_Frontal_pose_All_illum"
-PIE_Pose_Dir = "C:/Users/div_1/OneDrive/Documents/GitHub/NUS_MThesis/Datasets/multipie_linearCrop/Neutral_exp_All_poses_All_illum"
+#PIE_Exp_Dir = "C:/Users/div_1/OneDrive/Documents/GitHub/NUS_MThesis/Datasets/multipie_linearCrop/All_exp_Frontal_pose_All_illum"
+#PIE_Pose_Dir = "C:/Users/div_1/OneDrive/Documents/GitHub/NUS_MThesis/Datasets/multipie_linearCrop/Neutral_exp_All_poses_All_illum"
 Sessions = ["session01","session03"]#,"session03","session04"]
-OutDir = os.getcwd() + "/Dataset"
+OutDir = os.getcwd() + "/../../Datasets/Dataset_57"
 totalItems = 57
 def mvSamples():
     #file = open("AllExp.csv","w")
