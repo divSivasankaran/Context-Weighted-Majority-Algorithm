@@ -42,11 +42,12 @@ namespace alpehnull {
 				std::vector<double> getWeights() { return mWeights; }
 
 				int mRounds;
+				std::vector<double> mExpertLoss;
 				protected:
 					int mExperts;
 					std::vector<double> mProbability;
 					std::vector<double> mWeights;
-					std::vector<double> mExpertLoss;
+					
 					double mLoss, mBestActionLoss, mBestExpertLoss;
 					std::vector<std::vector<double>> mConfidenceMatrix;
 					int mClasses;

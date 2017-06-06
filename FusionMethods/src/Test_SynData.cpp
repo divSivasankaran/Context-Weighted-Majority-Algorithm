@@ -126,7 +126,7 @@ void Test_SynData::printStat(std::ofstream &mOutFile)
 
 void Test_SynData::runTests()
 {
-	generateData(Data_Dist::Random);
+	generateData(Data_Dist::Biased);
 	mWMA.train(expert_decisions, actual_decisions);
 	mCWMA.train(expert_decisions, actual_decisions, contexts);
 	//printStat();
@@ -135,7 +135,7 @@ void Test_SynData::runTests()
 void Test_SynData::runConvergence(std::ofstream& ofile)
 {
 	//gen_test();
-	generateData(Data_Dist::Random);
+	generateData(Data_Dist::Biased);
 	//mWMA.setConfidenceMatrix(bias_factor);
 	//mCWMA.setConfidenceMatrix(bias_factor); 
 	std::string outfile = outDir + "\\experiments\\Convergence_Stat.csv";

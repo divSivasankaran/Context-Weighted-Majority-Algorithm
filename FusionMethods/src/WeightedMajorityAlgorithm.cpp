@@ -325,13 +325,14 @@ bool ContextWMA::converge(std::vector<std::vector<bool>>& expert_decisions, std:
 		return false;
 	mRounds = (int)(contexts.size());
 	initialize();
-	file << "mLoss,avgLoss,bestLoss,distance" << std::endl;
+	file << "rounds,mLoss,avgLoss,bestLoss,distance" << std::endl;
 	for (int i = 0; i < mRounds; i++)
 	{
 		if ((int)(expert_decisions[i].size()) != mExperts)
 			return false;
-		double  l = updateWeights(expert_decisions[i], actual_decisions[i], contexts[i]);
-		mLoss += l;
+		auto d = updateWeights(expert_decisions[i], actual_decisions[i], contexts[i]);
+		if (d != actual_decisions[i])
+			mLoss++;
 		auto dist = evaluateDistance(i+1);
 		file << i <<","<<mLoss<<"," << mLoss/(i+1)<<","<<getBestLoss() << "," << dist <<std::endl;
 	}

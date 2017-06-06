@@ -6,103 +6,127 @@
 
 using namespace alpehnull::core::algo;
 using namespace std;
-bool C_Methods::evaluate(CMODE m, std::vector<std::vector<int>>& expert_decisions, std::vector<bool>& actual_decisions, std::vector<int>& contexts)
+bool C_Methods::evaluate(int i, std::vector<std::vector<int>>& expert_decisions, std::vector<bool>& actual_decisions, std::vector<int>& contexts)
 {
-	std::string outfile = outDir + "\\roc.csv";
-	std::ofstream f;
-	f.open(outfile);
-	for (double threshold = 0.00; threshold <= 1.0; threshold += 0.01
-		)
+	for (int k = 0; k < 9; k++)
 	{
-		for (int mode = 0; mode < 7; mode++)
+		std::string outfile = outDir + "\\roc_" +  std::to_string(k) + std::to_string(i)  +".csv";
+		std::ofstream f;
+		f.open(outfile);
+		for (double threshold = mBeginT; threshold <= mEndT; threshold += mStepSize)
 		{
-			if (mode == CMODE::wma)
+			for (int mode = 0; mode < 10; mode++)
 			{
-				mWMA.setExperts(expert_decisions[0].size());
-				mWMA.initialize();
-			}
-			else if (mode == CMODE::cwma)
-			{
-				mCWMA.setExperts(expert_decisions[0].size(), mContext);
-				mCWMA.initialize();
-			}
-			else if (mode == CMODE::wms)
-			{
-				mWS.setExperts(expert_decisions[0].size());
-				mWS.setThreshold(threshold * 100);
-				mWS.setMode(MODE::SCORE);
-				mWS.initialize();
-			}
-			else if (mode == CMODE::cwms)
-			{
-				mCWS.setExperts(expert_decisions[0].size(), mContext);
-				mCWS.setThreshold(threshold * 100);
-				mCWS.setMode(MODE::SCORE);
-				mCWS.initialize();
-			}
-			int FRR = 0;
-			int FAR = 0;
-			int rounds = actual_decisions.size();
-			for (int i = 0; i < rounds; i++)
-			{
-				auto scores = expert_decisions[i];
-				auto true_decision = actual_decisions[i];
-				bool fused_decision = false;
-				std::vector<bool> e_d;
-				if((mode==CMODE::wma)||( mode == CMODE::cwma))
-				for (int j = 0; j < scores.size(); j++)
+				if (mode == CMODE::wma)
 				{
-					if (scores[j] <= threshold*100)
+					mWMA.setExperts(expert_decisions[0].size());
+					mWMA.initialize();
+				}
+				else if (mode == CMODE::cwma)
+				{
+					mCWMA.setExperts(expert_decisions[0].size(), mContext);
+					mCWMA.initialize();
+				}
+				else if (mode == CMODE::wms)
+				{
+					mWS.setExperts(expert_decisions[0].size());
+					mWS.setThreshold(threshold * 100);
+					mWS.setMode(MODE::SCORE);
+					mWS.initialize();
+				}
+				else if (mode == CMODE::cwms)
+				{
+					mCWS.setExperts(expert_decisions[0].size(), mContext);
+					mCWS.setThreshold(threshold * 100);
+					mCWS.setMode(MODE::SCORE);
+					mCWS.initialize();
+				}
+				double FRR = 0;
+				double FAR = 0;
+				double genuine = 0;
+				double imposter = 0;
+				int rounds = actual_decisions.size();
+				for (int i = 0; i < rounds; i++)
+				{
+					if(k!=8)
+						if (contexts[i] != k)
+							continue;
+
+					auto scores = expert_decisions[i];
+					auto true_decision = actual_decisions[i];
+					bool fused_decision = false;
+					std::vector<bool> e_d;
+					if ((mode == CMODE::wma) || (mode == CMODE::cwma))
+						for (int j = 0; j < scores.size(); j++)
+						{
+							if (scores[j] < threshold * 100)
+							{
+								e_d.push_back(true);
+							}
+							else
+							{
+								e_d.push_back(false);
+							}
+						}
+					double score;
+					switch (mode)
 					{
-						e_d.push_back(true);
+					case CMODE::sum: score = evaluate_sum(scores);
+						if (score < threshold)
+							fused_decision = true;
+						break;
+					case CMODE::max:
+						score = evaluate_max(scores);
+						if (score < threshold)
+							fused_decision = true;
+						break;
+					case CMODE::product:
+						score = evaluate_product(scores);
+						if (score < threshold / 5)
+							fused_decision = true;
+						break;
+					case CMODE::wma:
+						fused_decision = mWMA.updateWeights(e_d, true_decision);
+						break;
+					case CMODE::cwma:
+						fused_decision = mCWMA.updateWeights(e_d, true_decision, contexts[i]);
+						break;
+					case CMODE::wms:
+						fused_decision = mWS.updateWeights(scores, true_decision);
+						break;
+					case CMODE::cwms:
+						fused_decision = mCWS.updateWeights(scores, true_decision, contexts[i]);
+						break;
+					case CMODE::exp1:
+						if (scores[0] < threshold * 100)
+							fused_decision = true;
+						break;
+					case CMODE::exp2:
+						if (scores[1] < threshold * 100)
+							fused_decision = true;
+						break;
+					case CMODE::exp3:
+						if (scores[2] < threshold * 100)
+							fused_decision = true;
+						break;
+					default:
+						score = evaluate_sum(scores);
 					}
+					if (true_decision)
+						genuine += 1;
 					else
-					{
-						e_d.push_back(false);
-					}
+						imposter += 1;
+					if (fused_decision && !true_decision) //We accept when it is an imposter
+						FAR++;
+					if (!fused_decision && true_decision) //We reject when it is the user
+						FRR++;
 				}
-				double score;
-				switch (mode)
-				{
-				case CMODE::sum: score = evaluate_sum(scores);
-					if (score <= threshold)
-						fused_decision = true;
-					break;
-				case CMODE::max:
-					score = evaluate_max(scores);
-					if (score <= threshold)
-						fused_decision = true;
-					break;
-				case CMODE::product:
-					score = evaluate_product(scores);
-					if (score <= threshold)
-						fused_decision = true;
-					break;
-				case CMODE::wma:
-					fused_decision = mWMA.updateWeights(e_d, true_decision);
-					break;
-				case CMODE::cwma:
-					fused_decision = mCWMA.updateWeights(e_d, true_decision, contexts[i]);
-					break;
-				case CMODE::wms:
-					fused_decision = mWS.updateWeights(scores, true_decision);
-					break;
-				case CMODE::cwms:
-					fused_decision = mCWS.updateWeights(scores, true_decision, contexts[i]);
-					break;
-				default:
-					score = evaluate_sum(scores);
-				}
-				if (fused_decision && !true_decision) //We accept when it is an imposter
-					FAR++;
-				if (!fused_decision && true_decision) //We reject when it is the user
-					FRR++;
+				f << (FAR / imposter) * 100 << "," << (FRR / genuine) * 100 << ",";
 			}
-			f << FAR << "," << FRR << ",";
+			f << std::endl;
 		}
-		f << std::endl;
+		f.close();
 	}
-	f.close();
 	return true;
 }
 

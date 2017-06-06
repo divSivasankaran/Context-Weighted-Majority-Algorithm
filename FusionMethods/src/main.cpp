@@ -175,7 +175,7 @@ void e_Bias_WithNoise()
 	f.open(outfile);
 	f << "Context, Rounds, experts: " << contexts << "," << rounds << "," << experts << std::endl;
 	f << "bias_percentage, wmaLoss, cwmaLoss, bestActionLoss, bestExpertloss" << std::endl;
-	for (int i = 0; i < 100; i += 10)
+	for (int i = 0; i < 100; i += 1)
 	{
 		double avgLoss_wma = 0;
 		double avgLoss_cwma = 0;
@@ -203,7 +203,7 @@ void convergenceTest()
 	std::string outfile = outDir + "\\experiments\\Convergence_Test.csv";
 	std::ofstream f;
 	int experts = 5;
-	int contexts = 5;
+	int contexts = 10;
 	int rounds = 400;
 	f.open(outfile);
 	f << "Context, experts: " << contexts << "," << experts << std::endl;
@@ -335,7 +335,7 @@ void real_decisionlvl()
 	}*/
 
 	//Read & transfer data
-	std::string infile = outDir + "\\..\\input\\Data_1.csv";
+	std::string infile = outDir + "\\..\\input\\Data_3.csv";
 	std::ifstream f;
 	f.open(infile);
 	std::string str;
@@ -365,7 +365,7 @@ void real_decisionlvl()
 	mCWMA.printStat(of);
 }
 
-void real_scorelvl(int threshold)
+void real_scorelvl(int threshold,int i)
 {
 	std::string outfile = outDir + "\\pie_test_score.csv";
 	std::ofstream of;
@@ -375,9 +375,10 @@ void real_scorelvl(int threshold)
 	std::vector<int> context_data;
 	std::vector<bool> actual_decisions;
 	std::vector<std::vector<int>> expert_decisions;
-
+	double minI = 100, maxG = 0;
+	int stepSize = 40;
 	//Read & transfer data
-	std::string infile = outDir + "\\..\\input\\Data_1.csv";
+	std::string infile = outDir + "\\..\\input\\Data_" + std::to_string(i) +".csv";
 	std::ifstream f;
 	f.open(infile);
 	std::string str;
@@ -387,6 +388,24 @@ void real_scorelvl(int threshold)
 		res = split(str, ',');
 		actual_decisions.push_back(bool(res[9]));
 		std::vector<int> e;
+		if (!actual_decisions.back()) //genuine sample
+		{
+			if (res[3] > maxG)
+				maxG = res[3];
+			if (res[4] > maxG)
+				maxG = res[4];
+			if (res[5] > maxG)
+				maxG = res[5];
+		}
+		else //imposter sample
+		{
+			if (res[3] < minI)
+				minI = res[3];
+			if (res[4] < minI)
+				minI = res[4];
+			if (res[5] < minI)
+				minI = res[5];
+		}
 		e.push_back(res[3]);
 		e.push_back(res[4]);
 		e.push_back(res[5]);
@@ -397,6 +416,7 @@ void real_scorelvl(int threshold)
 
 		context_data.push_back(contextmap[res[2]]);
 	}
+	//threshold = (maxG - minI) / 4;
 	contexts = contextmap.size();
 	of.open(outfile);
 	WMA_Multi mWMA(experts);
@@ -409,9 +429,9 @@ void real_scorelvl(int threshold)
 	mCWMA.train(expert_decisions, actual_decisions, context_data);//, of);
 	mWMA.printStat(of);
 	mCWMA.printStat(of);
-	C_Methods methods;
+	C_Methods methods(minI,maxG,stepSize);
 	methods.mContext = contexts;
-	methods.evaluate(CMODE::sum, expert_decisions, actual_decisions, context_data);
+	methods.evaluate(i, expert_decisions, actual_decisions, context_data);
 	//methods.evaluate(CMODE::product, expert_decisions, actual_decisions, context_data);
 	//methods.evaluate(CMODE::max, expert_decisions, actual_decisions, context_data);
 	//methods.evaluate(CMODE::wma, expert_decisions, actual_decisions, context_data);
@@ -429,14 +449,15 @@ int main(int argc, char* argv[])
 	//e_Experts();
 	//e_Contexts();
 	//e_Rounds();
-	//e_Bias_WithNoise();
+	e_Bias_WithNoise();
 	//convergenceTest();
 
 	//e_Multi();
 
 	//real_data();
-	real_scorelvl(30);
-	real_decisionlvl();
+	/*for(int i = 1; i<=3; i++)
+		real_scorelvl(30,i);
+	real_decisionlvl();*/
 	//getch();
 	return 0;
 }

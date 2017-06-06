@@ -75,7 +75,7 @@ bool WMA_Multi::updateWeights(std::vector<int>& expert_decisions, bool actual_de
 		if ((expert_decisions[i]<mThreshold) == actual_decision)
 			best_action = true;
 	}
-	bool decision = l_current <= mThreshold ? true : false;
+	bool decision = l_current < mThreshold ? true : false;
 	int res = (decision != actual_decision)? 1 : 0;
 	mLoss += res;
 	//if (decision != actual_decision)
@@ -83,7 +83,7 @@ bool WMA_Multi::updateWeights(std::vector<int>& expert_decisions, bool actual_de
 		for (int i = 0; i < mExperts; i++)
 		{
 			//if (expert_decisions[i] != actual_decision)//Expert was wrong. Update weights.
-			if (((expert_decisions[i]<mThreshold) && !actual_decision) || ((expert_decisions[i]>mThreshold) && actual_decision))
+			if (((expert_decisions[i]<mThreshold) && !actual_decision) || ((expert_decisions[i]>=mThreshold) && actual_decision))
 
 			{
 				auto loss = (1 - double(expert_decisions[i] / 100.0));
@@ -264,12 +264,18 @@ void ContextWMA_Multi::printStat()
 
 void ContextWMA_Multi::printStat(std::ofstream &f)
 {
+	
 	f << "Total Loss of CWMA: " << mLoss <<std::endl;
 	f << "Average Loss of CWMA: " << (double)(mLoss / mRounds)<<std::endl;
 	for (int i = 0; i < mContext; i++)
 	{
-		f<< "Characteristics of experts in context " << i << std::endl;
-		mWMA[i].printStat(f);
+		f << i << ","<<mWMA[i].getLoss()<< ",";
+		for (int j = 0; j < mExperts; j++)
+		{
+			f << mWMA[i].mExpertLoss[j] << ",";
+		}
+		f << std::endl;
+		//mWMA[i].printStat(f);
 
 	}
 }
@@ -298,9 +304,11 @@ bool ContextWMA_Multi::train(std::vector<std::vector<int>>& expert_decisions, st
 			auto decision = updateWeights(expert_decisions[i], actual_decisions[i], contexts[i]);
 			if (decision != actual_decisions[i])
 				mLoss += 1;
-			f << i << "," << mLoss / (i + 1) << "," << mLoss << "," << getBestLoss() << std::endl;
+			f << i <<"," << mLoss / (i + 1) << "," << mLoss << "," << getBestLoss() << std::endl;
 
 		}
+
+		printStat(f);
 		f.close();
 		return true;
 }
