@@ -40,13 +40,19 @@ bool C_Methods::evaluate(CMODE m, std::vector<std::vector<int>>& expert_decision
 				mCWS.setMode(MODE::SCORE);
 				mCWS.initialize();
 			}
-			int FRR = 0;
-			int FAR = 0;
+			double FRR = 0;
+			double FAR = 0;
+			double genuine = 0;
+			double imposters = 0;
 			int rounds = actual_decisions.size();
 			for (int i = 0; i < rounds; i++)
 			{
 				auto scores = expert_decisions[i];
 				auto true_decision = actual_decisions[i];
+				if (true_decision)
+					genuine++;
+				else
+					imposters++;
 				bool fused_decision = false;
 				std::vector<bool> e_d;
 				if((mode==CMODE::wma)||( mode == CMODE::cwma))
@@ -98,7 +104,7 @@ bool C_Methods::evaluate(CMODE m, std::vector<std::vector<int>>& expert_decision
 				if (!fused_decision && true_decision) //We reject when it is the user
 					FRR++;
 			}
-			f << FAR << "," << FRR << ",";
+			f << FAR/imposters << "," << FRR/genuine << ",";
 		}
 		f << std::endl;
 	}

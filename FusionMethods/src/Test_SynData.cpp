@@ -1,4 +1,5 @@
 #include<..\include\Test_SynData.h>
+#include<..\include\ComparativeMethods.h>
 #include<random>
 #include<math.h>
 #include<time.h>
@@ -129,6 +130,7 @@ void Test_SynData::runTests()
 	generateData(Data_Dist::Random);
 	mWMA.train(expert_decisions, actual_decisions);
 	mCWMA.train(expert_decisions, actual_decisions, contexts);
+	
 	//printStat();
 }
 

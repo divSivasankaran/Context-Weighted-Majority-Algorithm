@@ -10,8 +10,8 @@
 #include<ComparativeMethods.h>
 
 using namespace alpehnull::core::algo;
-std::string outDir = "C:\\Users\\e0013178\\Documents\\GitHub\\CWMA\\FusionMethods\\output";
-//std::string outDir = "C:\\Users\\div_1\\OneDrive\\Documents\\GitHub\\CWMA\\FusionMethods\\output";
+//std::string outDir = "C:\\Users\\e0013178\\Documents\\GitHub\\CWMA\\FusionMethods\\output";
+std::string outDir = "C:\\Users\\div_1\\OneDrive\\Documents\\GitHub\\CWMA\\FusionMethods\\output";
 
 
 #define e_repeat 1
@@ -335,7 +335,7 @@ void real_decisionlvl()
 	}*/
 
 	//Read & transfer data
-	std::string infile = outDir + "\\..\\input\\Data_1.csv";
+	std::string infile = outDir + "\\..\\input\\Data_2.csv";
 	std::ifstream f;
 	f.open(infile);
 	std::string str;
@@ -377,7 +377,7 @@ void real_scorelvl(int threshold)
 	std::vector<std::vector<int>> expert_decisions;
 
 	//Read & transfer data
-	std::string infile = outDir + "\\..\\input\\Data_1.csv";
+	std::string infile = outDir + "\\..\\input\\Data_2.csv";
 	std::ifstream f;
 	f.open(infile);
 	std::string str;
@@ -437,6 +437,8 @@ int main(int argc, char* argv[])
 	//real_data();
 	real_scorelvl(30);
 	real_decisionlvl();
+	/*Test_SynDataM t(5, 10, 1000,100);
+	t.runTests();*/
 	//getch();
 	return 0;
 }
