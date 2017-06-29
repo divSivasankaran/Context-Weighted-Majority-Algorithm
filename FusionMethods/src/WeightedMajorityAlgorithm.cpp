@@ -94,6 +94,7 @@ bool WeightedMajorityAlgorithm::updateWeights(std::vector<bool>& expert_decision
 			}
 			else
 			{
+				mHits[i]++;
 				//mWeights[i] = mWeights[i] * exp(EPSILON);
 			}
 			total_weight += mWeights[i];
@@ -143,11 +144,10 @@ void WeightedMajorityAlgorithm::printStat(std::ofstream &file)
 {
 	file << "Total Loss: " << mLoss << std::endl;
 	file << "Average Loss: " << (double)(mLoss / (mRounds+1)) << std::endl;
-	file << "Expert, Weight, Probability, distribution_reconstructed" << std::endl;
+	file << "Expert, Weight, Probability, hits, misses" << std::endl;
 	for (int i = 0; i < mExperts; i++)
 	{
-		double dist_rec = (std::log(mWeights[i])*(-2)) / (mRounds+1);
-		file <<i <<","  << mWeights[i] << "," << mProbability[i] << ","<<dist_rec<<std::endl;
+		file <<i <<","  << mWeights[i] << "," << mProbability[i] << ","<<mHits[i]/(mRounds+1)<<std::endl;
 	}
 	
 }
@@ -157,12 +157,17 @@ void WeightedMajorityAlgorithm::initialize()
 	mProbability.clear();
 	mWeights.clear();
 	mExpertLoss.clear();
-	for (int i = 0; i < mExperts; i++)
+	mProbability.assign(mExperts, (double(1.0 / (double)mExperts)));
+	mWeights.assign(mExperts, 1);
+	mHits.assign(mExperts, 0);
+	mExpertLoss.assign(mExperts, 0);
+	/*for (int i = 0; i < mExperts; i++)
 	{
 		mProbability.push_back(double(1.0 / (double)mExperts));
 		mWeights.push_back(1);
 		mExpertLoss.push_back(0);
-	}
+
+	}*/
 	mBestActionLoss = 0.0;
 	mLoss = 0.0;
 }

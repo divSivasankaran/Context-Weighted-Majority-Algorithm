@@ -16,57 +16,6 @@ std::string outDir = "C:\\Users\\div_1\\OneDrive\\Documents\\GitHub\\CWMA\\Fusio
 
 #define e_repeat 1
 
-void test_WMA()
-{
-	WeightedMajorityAlgorithm test(3);
-	std::vector<std::vector<bool>> expert_decisions;
-	bool e[3][8] ={ { true, true, false, false, true, true, false, false}, { true, true, true, false, false, false, false, false }, { false, false, false, true, true, true, true, true }
-};
-	bool actual[] = { true, true, true, true, true, true, true, true };
-	std::cout << "Testing WMA Algorithm:" << std::endl;
-	std::vector<bool> actual_decisions;
-	for (int i = 0; i < 8; i++)
-	{
-		actual_decisions.push_back(actual[i]);
-		std::vector<bool> temp;
-		for (int j = 0; j < 3; j++)
-		{
-			temp.push_back(e[j][i]);
-		}
-		expert_decisions.push_back(temp);
-	}
-	test.train(expert_decisions, actual_decisions);
-	test.printStat();
-	std::cout <<std::endl<<"Total Loss = " << test.getLoss() << std::endl;
-}
-void test_CWMA()
-{
-	ContextWMA test(3,2);
-	std::vector<std::vector<bool>> expert_decisions;
-	bool e[3][8] = { { true, true, false, false, true, true, false, false },{ true, true, true, false, false, false, false, false },{ false, false, false, true, true, true, true, true }
-	};
-	bool actual[] = { true, false, true, false, false, true, false, true };
-	bool context[] = { 0,0,0,0,1,1,1,1 };
-	std::cout << "Testing ContextWMA Algorithm:" << std::endl;
-	std::vector<bool> actual_decisions;
-	std::vector<int> contexts;
-	for (int i = 0; i < 8; i++)
-	{
-		actual_decisions.push_back(actual[i]);
-		contexts.push_back(context[i]);
-		std::vector<bool> temp;
-		for (int j = 0; j < 3; j++)
-		{
-			temp.push_back(e[j][i]);
-		}
-		expert_decisions.push_back(temp);
-	}
-	test.train(expert_decisions, actual_decisions,contexts);
-	test.printStat();
-	std::cout << std::endl << "Total Loss = " << test.getLoss() << std::endl;
-	
-}
-
 void e_Experts()
 {
 	int contexts = 10;
@@ -421,10 +370,8 @@ void real_scorelvl(int threshold)
 
 int main(int argc, char* argv[])
 {
-	//test_WMA();
-	//test_CWMA();
-	//Test_SynData t(10,5,24);
-	//t.runTests();
+	Test_SynData t(2,3,400);
+	t.runTests();
 	
 	//e_Experts();
 	//e_Contexts();
@@ -435,10 +382,12 @@ int main(int argc, char* argv[])
 	//e_Multi();
 
 	//real_data();
-	real_scorelvl(30);
-	real_decisionlvl();
+	/*real_scorelvl(30);
+	real_decisionlvl();*/
+	
 	/*Test_SynDataM t(5, 10, 1000,100);
 	t.runTests();*/
-	//getch();
+	getch();
+	
 	return 0;
 }

@@ -19,6 +19,7 @@ namespace alpehnull {
 				{
 					mExperts = experts;
 				}
+				std::vector<double> getHitVector() { return mHits; }
 				virtual void initialize();
 				virtual double getLoss() { return mLoss; }
 				virtual double getBestActionLoss();
@@ -40,6 +41,7 @@ namespace alpehnull {
 					std::vector<double> mProbability;
 					std::vector<double> mWeights;
 					std::vector<double> mExpertLoss;
+					std::vector<double> mHits;
 					double mLoss, mBestActionLoss, mBestExpertLoss;
 					std::vector<std::vector<double>> mConfidenceMatrix;
 					std::vector<double> mReconWt;
@@ -61,6 +63,18 @@ namespace alpehnull {
 						WeightedMajorityAlgorithm t(mExperts);
 						mWMA.push_back(t);
 					}
+				}
+				virtual std::vector<std::vector<double>> getHitMatrix() { 
+					std::vector < std::vector<double>> data;  
+					for (int i = 0; i < mWMA.size(); i++) 
+					{
+						auto temp = mWMA[i].getHitVector();
+						for (int j = 0; j < temp.size(); j++)
+							if(mWMA[i].mRounds)
+								temp[j] = temp[j] / (mWMA[i].mRounds);
+						data.push_back(temp);
+					}
+					return data;
 				}
 				virtual double getLoss() { return mLoss; }
 				virtual double getBestLoss();

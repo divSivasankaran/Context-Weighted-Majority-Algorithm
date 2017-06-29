@@ -1,5 +1,6 @@
 #include<..\include\Test_SynData.h>
 #include<..\include\ComparativeMethods.h>
+#include<..\include\DecisionTree.h>
 #include<random>
 #include<math.h>
 #include<time.h>
@@ -53,17 +54,19 @@ void Test_SynData::gen_test()
 		prob.push_back(p);
 		std::cout << "Bias for expert "<< i << " in context :";
 		bias_factor[i].resize(mContexts);
-		for (int j = 0; j < mContexts; j++)
+		for (int j = 0; j < mContexts; j+=2)
 		{
 			int num = rand() % 100;
 			if (mType == Data_Dist::Biased && num <= bias_percentage)
 			{
 				bias_factor[i][j] = rand()%100;
+				bias_factor[i][j + 1] = bias_factor[i][j];
 				std::cout << j << "-" <<bias_factor[i][j]<<",";
 			}
 			else
 			{
 				bias_factor[i][j] = 50;
+				bias_factor[i][j + 1] = 90;
  			}
 		}
 		std::cout << std::endl;
@@ -112,13 +115,13 @@ void Test_SynData::printStat(std::ofstream &mOutFile)
 	}
 
 	mOutFile << "Context,Expert,Bias" << std::endl;
-	for (int i = 0; i < mContexts; i++)
+	for (int i = 0; i < mExperts; i++)
 	{
-		for (int j = 0; j < mExperts; j++)
-			mOutFile << i << ","<< j << "," << bias_factor[j][i] << std::endl;
-	}
+		for (int j = 0; j < mContexts; j++)
+			mOutFile << bias_factor[i][j] << ",";
+		mOutFile << std::endl;
+	}	
 	
-
 	mOutFile << "WMA RESULTS" << std::endl;
 	mWMA.printStat(mOutFile);
 	mOutFile << "ContextWMA RESULTS" << std::endl;
@@ -127,11 +130,21 @@ void Test_SynData::printStat(std::ofstream &mOutFile)
 
 void Test_SynData::runTests()
 {
-	generateData(Data_Dist::Random);
+	bias_percentage = 100;
+	mType = Data_Dist::Random;
+	gen_test();
+	//generateData(Data_Dist::Biased);
 	mWMA.train(expert_decisions, actual_decisions);
 	mCWMA.train(expert_decisions, actual_decisions, contexts);
-	
-	//printStat();
+	std::string outfile = outDir + "\\experiments\\DT_Data.csv";
+	std::ofstream f;
+	f.open(outfile); 
+	printStat(f);
+	DecisionTree dt,dt1;
+	auto root = dt.train(mCWMA.getHitMatrix());
+	dt.printTree(root);
+	//auto root1 = dt1.train(getBiasMatrix());
+	//dt1.printTree(root1);
 }
 
 void Test_SynData::runConvergence(std::ofstream& ofile)
@@ -150,7 +163,7 @@ void Test_SynData::runConvergence(std::ofstream& ofile)
 		//mWMA.printStat(ofile);
 		mCWMA.converge(expert_decisions, actual_decisions, contexts, ofile);
 		//mCWMA.printStat(ofile);
-		//printStat(f);
+		printStat(ofile);
 	}
 }
 double Test_SynData::getBestActionLoss()

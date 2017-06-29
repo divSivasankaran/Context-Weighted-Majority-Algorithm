@@ -21,13 +21,14 @@ public:
 	{
 		mExperts = experts;
 		mRounds = rounds;
-		mContexts = context;
-		mWMA.setExperts(experts);
-		mCWMA.setExperts(experts, context);
+		mContexts = std::pow(2,context);
+		mWMA.setExperts(mExperts);
+		mCWMA.setExperts(mExperts, mContexts);
 		bias = mContexts; //fully biased
 		bias_percentage = 100;
 		mType = Data_Dist::Biased;
 	}
+	std::vector<std::vector<double>> getBiasMatrix() { return bias_factor; }
 	void generateData(Data_Dist type);
 	void gen_test();
 	void runTests();
@@ -48,7 +49,7 @@ protected:
 	std::vector<std::vector<bool>> expert_decisions;
 	std::vector<bool> actual_decisions;
 	std::vector<int> contexts;
-	std::vector<std::vector<int>> bias_factor;
+	std::vector<std::vector<double>> bias_factor;
 };
 
 		}
