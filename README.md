@@ -4,7 +4,7 @@ This repository contains the code used for following algorithms
 
 ## [Master Thesis](http://scholarbank.nus.edu.sg/handle/10635/138654)
 <ul>
-	<li> <a href="">Presentation</a></li>
+	<li> <a href="">Presentation</a> </li>
 </ul>
 
 ## [International Conference on Biometrics 2018](http://icb2018.org/) 
@@ -16,3 +16,4 @@ Contributors/Authors: *Divya Sivasankaran, Mona Ragab, Associate Professor Teren
 	<li> <a href=""> Pictures</a> </li>
 </ul>
 
+The code base is currently incomplete and in the process of being migrated. Please email me at div1090@gmail.com & I'll share &/ sort out any queries asap.
