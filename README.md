@@ -10,7 +10,7 @@ This repository contains the code used for following algorithms
 ## [International Conference on Biometrics 2018](http://icb2018.org/)
 Contributors/Authors: *Divya Sivasankaran, Mona Ragab, Associate Professor Terence Sim, Assistant Professor Yair Zick*
 <ul id="horizontal-list">
-	<!-- <li> <a href="">Publication</a> </li> -->
+	<li> <a href="https://ieeexplore.ieee.org/document/8411227/">Publication</a> </li>
 	<li> <a href="static/icb_poster_cwma_a0.pdf">Poster</a></li>
 	<!-- <li> <a href="">Presentation</a> </li> -->
 	<!-- <li> <a href="">Pictures</a> </li> -->
